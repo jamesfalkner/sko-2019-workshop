@@ -1,0 +1,5 @@
+---
+project_name: foo
+image_version: 7.3
+application_name: default-app-name
+cache_names: cache1,cache2

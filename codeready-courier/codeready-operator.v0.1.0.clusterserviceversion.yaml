@@ -1,0 +1,159 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  creationTimestamp: null
+  name: codeready-operator.v0.1.0
+  namespace: placeholder
+  annotations:
+    tectonic-visibility: ocs
+    capabilities: Full Lifecycle
+    categories: "Other"
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - kind: CodeReady
+      name: codereadys.codeready.redhat.com
+      version: v1alpha1
+      displayName: "Red Hat CodeReady Workspaces"
+      description: "Browser-based Developer IDE for OpenShift"
+  description: Placeholder description
+  displayName: CodeReady Operator
+  installModes:
+  - type: OwnNamespace
+    supported: true
+  - type: SingleNamespace
+    supported: true
+  - type: MultiNamespace
+    supported: true
+  - type: AllNamespaces
+    supported: false
+
+  install:
+    spec:
+      deployments:
+      - name: codeready-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: codeready-operator
+          strategy: {}
+          template:
+            metadata:
+              creationTimestamp: null
+              labels:
+                name: codeready-operator
+            spec:
+              containers:
+              - env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: codeready-operator
+                image: docker.io/schtool/codeready-operator:0.1
+                imagePullPolicy: Always
+                name: codeready-operator
+                resources: {}
+              serviceAccountName: codeready-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - routes
+          - configmaps
+          - secrets
+          verbs:
+          - '*'
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          - routes
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - deploymentconfigs
+          - routes
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - codeready.redhat.com
+          resources:
+          - '*'
+          - routes
+          - codereadys
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps.openshift.io
+          resources:
+          - deploymentconfigs
+          - routes
+          verbs:
+          - '*'
+        - apiGroups:
+          - metrics.k8s.io
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - alertmanagers
+          - alertmanagers/finalizers
+          - prometheuses
+          - prometheuses/finalizers
+          - prometheusrules
+          - servicemonitors
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resourceNames:
+          - kube-state-metrics
+          resources:
+          - deployments
+          verbs:
+          - get
+          - update
+        - apiGroups:
+          - extensions
+          resourceNames:
+          - kube-state-metrics
+          resources:
+          - deployments
+          verbs:
+          - get
+          - update
+        serviceAccountName: codeready-operator
+    strategy: deployment
+  maturity: alpha
+  provider: {}
+  version: 0.1.0

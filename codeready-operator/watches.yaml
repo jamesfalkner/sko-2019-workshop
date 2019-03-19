@@ -1,0 +1,5 @@
+---
+- version: v1alpha1
+  group: codeready.redhat.com
+  kind: codeready
+  role: /opt/ansible/roles/codeready

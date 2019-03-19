@@ -1,0 +1,110 @@
+---
+# Set App Hostname Suffix
+- name: generate tmp project name
+  set_fact:
+    tmp_project_name: "tmp-prj-{{ 9999|random }}"
+
+- name: create tmp project
+  shell: "/usr/bin/oc new-project {{ tmp_project_name }}"
+  ignore_errors: true
+
+- name: create dummy route to calculate hostnames
+  shell: "/usr/bin/oc create route edge dummy --service=dummy --port=8080 -n {{ tmp_project_name }}"
+  ignore_errors: true
+
+- name: get dummy route to calculate hostnames
+  shell: "/usr/bin/oc get route dummy -o=go-template --template={%raw%}'{{ .spec.host }}'{%endraw%} -n {{ tmp_project_name }}"
+  register: dummy_route_result
+  changed_when: false
+
+- name: set routes hostname fact
+  set_fact:
+    apps_hostname_suffix: "{{ dummy_route_result.stdout|regex_replace('^dummy-' + tmp_project_name + '\\.(.*)$', '\\1') }}"
+
+- name: delete tmp project
+  shell: "/usr/bin/oc delete project {{ tmp_project_name }}"
+  ignore_errors: true
+
+- name: create codeready project
+  shell: "/usr/bin/oc new-project codeready"
+  ignore_errors: true
+  tags: always
+
+- name: create operator serviceaccount
+  shell: "/usr/bin/oc create sa che-operator -n codeready"
+  ignore_errors: true
+  tags: always
+
+- name: create operator role binding to cluster admin
+  shell: "/usr/bin/oc create rolebinding che-operator --clusterrole=admin --serviceaccount=codeready:che-operator -n codeready"
+  ignore_errors: true
+  tags: always
+
+- name: create codeready configmap
+  ignore_errors: true
+  command:
+  args:
+    argv:
+      - '/usr/bin/oc'
+      - 'create'
+      - '-f'
+      - 'https://gist.githubusercontent.com/jamesfalkner/b338459276cb3045530cc59d02abd423/raw/1897c07d71eea6f398e0e66f896ba168bb830169/sko-config.yaml'
+      - '-n'
+      - 'codeready'
+      
+- name: get route suffix
+  shell: "echo https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}"
+  ignore_errors: true
+  register: server_url
+  changed_when: false
+
+- name: patch configmap 
+  ignore_errors: true
+  command:
+  args:
+    argv:
+      - '/usr/bin/oc'
+      - 'patch'
+      - 'cm/che-operator'
+      - '-p'
+      - ' {"data":{"CHE_OPENSHIFT_API_URL":"{{server_url.stdout}}"}}'
+      - '-n'
+      - 'codeready'
+
+- name: patch configmap for password
+  ignore_errors: true
+  command:
+  args:
+    argv:
+      - '/usr/bin/oc'
+      - 'patch'
+      - 'cm/che-operator'
+      - '-p'
+      - ' {"data":{"CHE_UPDATE_CHE_ADMIN_PASSWORD":"false"}}'
+      - '-n'
+      - 'codeready'
+
+- name: run codeready installer
+  command:
+  args:
+    argv:
+      - '/usr/bin/oc'
+      - 'run' 
+      - 'che-operator'
+      - '--restart=Never'
+      - '--serviceaccount=che-operator'
+      - '--image=registry.access.redhat.com/codeready-workspaces/server-operator:latest'
+      - '-n'
+      - 'codeready'
+      - --overrides={"spec":{"containers":[{"image":"registry.access.redhat.com/codeready-workspaces/server-operator:latest","name":"che-operator","imagePullPolicy":"IfNotPresent","envFrom":[{"configMapRef":{"name":"che-operator"}}]}]}}
+  
+- name: wait for codeready deployment
+  shell: "/usr/bin/oc get deployment/codeready -n codeready"
+  register: result
+  until: result.stdout_lines
+  retries: 50
+  delay: 20
+
+- name: adjust resources and probes
+  shell: "/usr/bin/oc set probe deployment/codeready -n codeready --readiness --liveness --failure-threshold=50"
+  

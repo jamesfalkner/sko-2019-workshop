@@ -1,0 +1,95 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  creationTimestamp: null
+  name: datagrid-operator
+rules:
+  - verbs:
+      - '*'
+    apiGroups:
+      - ''
+    resources:
+      - pods
+      - services
+      - endpoints
+      - persistentvolumeclaims
+      - events
+      - routes
+      - configmaps
+      - secrets
+  - verbs:
+      - get
+    apiGroups:
+      - ''
+    resources:
+      - namespaces
+      - routes
+  - verbs:
+      - '*'
+    apiGroups:
+      - apps
+    resources:
+      - deployments
+      - deploymentconfigs
+      - routes
+      - daemonsets
+      - replicasets
+      - statefulsets
+  - verbs:
+      - get
+      - create
+    apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - servicemonitors
+  - verbs:
+      - '*'
+    apiGroups:
+      - reactica.redhat.com
+    resources:
+      - '*'
+      - routes
+      - datagrids
+      - messagequeues
+  - verbs:
+      - '*'
+    apiGroups:
+      - apps.openshift.io
+    resources:
+      - deploymentconfigs
+      - routes
+  - verbs:
+      - '*'
+    apiGroups:
+      - metrics.k8s.io
+    resources:
+      - '*'
+  - verbs:
+      - '*'
+    apiGroups:
+      - monitoring.coreos.com
+    resources:
+      - alertmanagers
+      - alertmanagers/finalizers
+      - prometheuses
+      - prometheuses/finalizers
+      - prometheusrules
+      - servicemonitors
+  - verbs:
+      - get
+      - update
+    apiGroups:
+      - apps
+    resources:
+      - deployments
+    resourceNames:
+      - kube-state-metrics
+  - verbs:
+      - get
+      - update
+    apiGroups:
+      - extensions
+    resources:
+      - deployments
+    resourceNames:
+      - kube-state-metrics

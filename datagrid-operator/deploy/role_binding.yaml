@@ -1,0 +1,11 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: datagrid-operator
+subjects:
+- kind: ServiceAccount
+  name: datagrid-operator
+roleRef:
+  kind: Role
+  name: datagrid-operator
+  apiGroup: rbac.authorization.k8s.io

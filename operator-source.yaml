@@ -1,0 +1,12 @@
+apiVersion: marketplace.redhat.com/v1alpha1
+kind: OperatorSource
+metadata:
+  name: sko
+  namespace: openshift-marketplace
+spec:
+  type: appregistry
+  endpoint: https://quay.io/cnr
+  registryNamespace: jamesfalkner
+  displayName: "SKO 2019 Demo"
+  publisher: "Red Hat"
+

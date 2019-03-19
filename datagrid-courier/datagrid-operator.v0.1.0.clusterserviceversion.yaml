@@ -1,0 +1,159 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  creationTimestamp: null
+  name: datagrid-operator.v0.1.0
+  namespace: placeholder
+  annotations:
+    tectonic-visibility: ocs
+    capabilities: Full Lifecycle
+    categories: "Database"
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - kind: DataGrid
+      name: datagrids.datagrid.redhat.com
+      version: v1alpha1
+      displayName: "Red Hat Data Grid"
+      description: "In Memory, Clustered Data Grid"
+  description: Placeholder description
+  displayName: Data Grid Operator
+  installModes:
+  - type: OwnNamespace
+    supported: true
+  - type: SingleNamespace
+    supported: true
+  - type: MultiNamespace
+    supported: true
+  - type: AllNamespaces
+    supported: false
+
+  install:
+    spec:
+      deployments:
+      - name: datagrid-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: datagrid-operator
+          strategy: {}
+          template:
+            metadata:
+              creationTimestamp: null
+              labels:
+                name: datagrid-operator
+            spec:
+              containers:
+              - env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.namespace
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: datagrid-operator
+                image: docker.io/schtool/datagrid-operator:0.1
+                imagePullPolicy: Always
+                name: datagrid-operator
+                resources: {}
+              serviceAccountName: datagrid-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - routes
+          - configmaps
+          - secrets
+          verbs:
+          - '*'
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          - routes
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - deploymentconfigs
+          - routes
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - datagrid.redhat.com
+          resources:
+          - '*'
+          - routes
+          - datagrids
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps.openshift.io
+          resources:
+          - deploymentconfigs
+          - routes
+          verbs:
+          - '*'
+        - apiGroups:
+          - metrics.k8s.io
+          resources:
+          - '*'
+          verbs:
+          - '*'
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - alertmanagers
+          - alertmanagers/finalizers
+          - prometheuses
+          - prometheuses/finalizers
+          - prometheusrules
+          - servicemonitors
+          verbs:
+          - '*'
+        - apiGroups:
+          - apps
+          resourceNames:
+          - kube-state-metrics
+          resources:
+          - deployments
+          verbs:
+          - get
+          - update
+        - apiGroups:
+          - extensions
+          resourceNames:
+          - kube-state-metrics
+          resources:
+          - deployments
+          verbs:
+          - get
+          - update
+        serviceAccountName: datagrid-operator
+    strategy: deployment
+  maturity: alpha
+  provider: {}
+  version: 0.1.0

@@ -1,0 +1,170 @@
+---
+## Data Grid Install
+- name: Deploy Data Grid Web Service
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        annotations:
+          description: The grid's HTTP port.
+        labels:
+          application: datagrid
+        name: datagrid
+        namespace: '{{ meta.namespace }}'
+      spec:
+        ports:
+        - port: 8080
+          targetPort: 8080
+        selector:
+          deploymentConfig: datagrid
+
+- name: Deploy Data Grid Memcached Service
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        annotations:
+          description: Memcached service for clustered applications.
+        labels:
+          application: datagrid
+        name: datagrid-memcached
+        namespace: '{{ meta.namespace }}'
+      spec:
+        ports:
+        - port: 11211
+          targetPort: 11211
+        selector:
+          deploymentConfig: datagrid
+
+- name: Deploy Data Grid HotRod Service
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        annotations:
+          description: Hot Rod service for clustered applications.
+        labels:
+          application: datagrid
+        name: datagrid-hotrod
+        namespace: '{{ meta.namespace }}'
+      spec:
+        ports:
+        - port: 11222
+          targetPort: 11222
+        selector:
+          deploymentConfig: datagrid
+
+
+- name: Deploy Data Grid JGroups Service
+  k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        annotations:
+          description: The JGroups ping port for clustering.
+          service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+        labels:
+          application: datagrid
+        name: datagrid-ping
+        namespace: '{{ meta.namespace }}'
+      spec:
+        clusterIP: None
+        ports:
+        - name: ping
+          port: 8888
+        selector:
+          deploymentConfig: datagrid
+    
+- name: Deploy Data Grid Deployment
+  k8s:
+    state: present
+    definition:
+      apiVersion: apps.openshift.io/v1
+      kind: DeploymentConfig
+      metadata:
+        labels:
+          application: datagrid
+        name: datagrid
+        namespace: '{{ meta.namespace }}'
+      spec:
+        replicas: 1
+        selector:
+          deploymentConfig: datagrid
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              application: datagrid
+              deploymentConfig: datagrid
+            name: datagrid
+          spec:
+            containers:
+            - env:
+              - name: USERNAME
+                value: ""
+              - name: PASSWORD
+                value: ""
+              - name: ADMIN_GROUP
+                value: ""
+              - name: HOTROD_AUTHENTICATION
+                value: ""
+              - name: CONTAINER_SECURITY_ROLE_MAPPER
+                value: ""
+              - name: CONTAINER_SECURITY_ROLES
+                value: ""
+              - name: JGROUPS_PING_PROTOCOL
+                value: openshift.DNS_PING
+              - name: OPENSHIFT_DNS_PING_SERVICE_NAME
+                value: datagrid-ping
+              - name: OPENSHIFT_DNS_PING_SERVICE_PORT
+                value: "8888"
+              - name: INFINISPAN_CONNECTORS
+                value: hotrod,memcached,rest
+              - name: CACHE_NAMES
+                value: users
+              - name: DATAVIRT_CACHE_NAMES
+                value: ""
+              - name: CACHE_TYPE_DEFAULT
+                value: ""
+              - name: HOTROD_SERVICE_NAME
+                value: datagrid-hotrod
+              - name: MEMCACHED_CACHE
+                value: default_memcached
+              - name: REST_SECURITY_DOMAIN
+                value: ""
+              - name: JGROUPS_CLUSTER_PASSWORD
+                value: G6RiHo5E
+              image: jboss/infinispan-server:latest
+              imagePullPolicy: Always
+              name: datagrid
+              ports:
+              - containerPort: 8778
+                name: jolokia
+                protocol: TCP
+              - containerPort: 8080
+                name: http
+                protocol: TCP
+              - containerPort: 8888
+                name: ping
+                protocol: TCP
+              - containerPort: 11211
+                name: memcached
+                protocol: TCP
+              - containerPort: 11222
+                name: hotrod
+                protocol: TCP
+              resources:
+                limits:
+                  memory: 1Gi
+            terminationGracePeriodSeconds: 60
+        triggers:
+        - type: ConfigChange

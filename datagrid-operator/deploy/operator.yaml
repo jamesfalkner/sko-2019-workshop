@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: datagrid-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: datagrid-operator
+  template:
+    metadata:
+      labels:
+        name: datagrid-operator
+    spec:
+      serviceAccountName: datagrid-operator
+      containers:
+        - name: datagrid-operator
+          # Replace this with the built image name
+          image: "docker.io/schtool/datagrid-operator:0.1"
+          imagePullPolicy: "Always"
+          env:
+            - name: WATCH_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              value: "datagrid-operator"

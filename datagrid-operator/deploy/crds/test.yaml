@@ -1,0 +1,7 @@
+apiVersion: datagrid.redhat.com/v1alpha1
+kind: DataGrid
+metadata:
+  name: example
+spec:
+  # Add fields here
+  size: 3

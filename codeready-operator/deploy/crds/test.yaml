@@ -1,0 +1,7 @@
+apiVersion: codeready.redhat.com/v1alpha1
+kind: CodeReady
+metadata:
+  name: example
+spec:
+  # Add fields here
+  size: 3

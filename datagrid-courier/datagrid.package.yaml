@@ -1,0 +1,5 @@
+packageName: datagrid
+channels:
+- name: preview
+  currentCSV: datagrid-operator.v0.1.0
+

@@ -1,0 +1,5 @@
+packageName: codeready
+channels:
+- name: preview
+  currentCSV: codeready-operator.v0.1.0
+

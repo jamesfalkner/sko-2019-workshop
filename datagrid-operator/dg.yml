@@ -1,0 +1,10 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - import_role:
+      name: "datagrid"
+    vars:
+      project_name: "{{ meta.namespace }}"
+      image_version: 7.3
+      application_name: eventstore-dg
+      cache_names: userevents,rideevents,users
