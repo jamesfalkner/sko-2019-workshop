@@ -115,7 +115,7 @@ Once logged in, we'll create our custom stack through the CodeReady REST API bro
 echo http://$(oc get route codeready -n codeready -o jsonpath='{.spec.host}{"\n"}')/swagger
 ```
 
-Expand the `stack` API, and find the `POST  /stack` API. In the `body` field, paste the following content that defines our custom stack:
+Expand the `stack` API, and find the `POST /stack` API. In the `body` field, paste the following content that defines our custom stack:
 
 
 ```json
@@ -240,13 +240,21 @@ Click the **Try It!** button below _Response Messages_ to register the stack. It
 
 Create CodeReady Workspace with custom Java stack
 ============================================
-CodeReady has the concept of _Workspaces_ which are team collaboration areas for different projects. Let's create a new Workspace and base it on our new stack we created. Navigate back to the CodeReady homepage at this URL::
+CodeReady has the concept of _Workspaces_ which are team collaboration areas for different projects. Let's create a new Workspace and base it on our new stack we created. Navigate back to the CodeReady homepage at this URL:
 
 ```sh
 echo http://$(oc get route codeready -n codeready -o jsonpath='{.spec.host}{"\n"}')
 ```
 
-You should still be logged in as `user1`. Click on **Create Workspace** (or if you wait long enough it will get clicked for you). Locate the new stack in the list of stacks available. Look for the one titled **SKO 2019 - Java, CodeReady, odo**. Select it, then click **Create & Open**. This will start the workspace as a container on OpenShift. After a while you should see a successful startup and empty project:
+You should still be logged in as `user1`. Click on **Create Workspace** (or if you wait long enough it will get clicked for you). Locate the new stack in the list of stacks available. If you do not see it, be sure to select the **All** tab to show all available stacks. Look for the one titled **SKO 2019 - Java, CodeReady, odo**. Select it, then click **Create & Open**. This will start the workspace as a container on OpenShift, however there is a bug within CodeReady Workspaces on OCP 4 Beta.
+
+Workaround for bug 
+==================
+[This bug](https://github.com/eclipse/che/issues/12889) prevents CodeReady Workspaces from starting up the first time on OCP 4. On the CodeReady main page, click on **Workspaces (1)**, and then click the "Stop" button (square shape) next to your new workspace. You may get an error popup which you can ignore. Then, click the "Start" button (Triangle shape) to restart the workspace, which should workaround the bug. Then click the name of the workspace on the left menu (under **RECENT WORKSPACES**) to watch the workspace start up.
+
+After a while you should see a successful startup and empty project:
+
+!IMAGE
 
 Next, Click _Import Project..._ to import the example application we'll be working with. Choose **GitHub** as the source of the import, and use the following sample project URL:
 
@@ -278,7 +286,7 @@ This will cause our application to listen on TCP port `8080`, across all interfa
 
 Test locally
 ============
-Typically you will want to test your code first, before deploying to OpenShift. Go to the Command Palette and choose "Build and Run Locally". It will take a minute or two to download dependencies, then it should be ready when you start seeing log file messages like:
+Typically you will want to test your code first, before deploying to OpenShift. Go to the Command Palette and choose **Build and Run Locally**. It will take a minute or two to download dependencies, then it should be ready when you start seeing log file messages like:
 
 ```
 2019-03-19 11:32:07,092 INFO  [org.inf.hp.ser.HogwartsMagicCreator] (DefaultQuartzScheduler_Worker-2) ... magic is happening ...
@@ -326,6 +334,8 @@ To login with `oc`, Click on Terminal at the bottom of the CodeReady screen to o
 
 !IMAGE
 
+> If for some reason the Terminal becomes unresponsive, just close it with the "X" button in the Terminal tab, and open a new one using the `+` button to the right of the Terminal tabs.
+
 Within this terminal, we'll login with the same credentials you were given at the start of this lab. Login with the following command in the Terminal:
 
 ```sh
@@ -338,7 +348,7 @@ Next, switch to our development project within OpenShift:
 oc project skodemo
 ```
 
-At this point, we're ready to deploy. Let's use the typical developer workflow to login and deploy the project with `odo`. First, we'll create the app. Run the following in your Terminal:
+At this point, we're ready to deploy. Let's use the typical developer workflow to login and deploy the project with `odo`. First, we'll create the app in the context of odo. Run the following in your Terminal:
 
 ```sh
 cd /projects/harry-potter-quarkus
@@ -350,6 +360,8 @@ Next, create a component within the app called `magic`:
 ```sh
 odo create java magic
 ```
+
+odo lets you manage separate projects, switching between them with `odo project set`. For more information on odo, run `odo help` or check out its [home on GitHub](https://github.com/redhat-developer/odo).
 
 Quarkus projects have create two different JAR files, but we only want one of them to appear in our final project at runtime, so issue the following command to override which build artifacts are used:
 
