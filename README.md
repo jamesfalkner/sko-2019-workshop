@@ -256,7 +256,7 @@ Next, Click _Import Project..._ to import the example application we'll be worki
 
 This is a sample application that uses Red Hat Data Grid and [Quarkus.io](https://quarkus.io) to create a blazingly fast reactive, event-driven Java application.
 
-Click _Import_. On the next screen (after import is successful) be sure to choose the _Maven_ project type, and click _Finish_. You've now imported the sample app, and should be able to see the codebase on the left project navigator (feel free to expand the tree of project classes/files):
+Click _Import_. On the next screen (after import is successful) be sure to choose the _Maven_ project type, and click _Save_. You've now imported the sample app, and should be able to see the codebase on the left project navigator (feel free to expand the tree of project classes/files):
 
 !IMAGE
 
@@ -270,12 +270,21 @@ Replace the contents of this file with the following code:
 quarkus.http.port=8080
 quarkus.http.host=0.0.0.0
 quarkus.infinispan-client.server-list=datagrid-hotrod.skodemo:11222
+
+characters.filename = hp_characters.csv
+spells.filename = hp_spells.csv
 ```
 This will cause our application to listen on TCP port `8080`, across all interfaces, and use the Data Grid service we previously installed.
 
 Test locally
 ============
-Typically you will want to test your code first, before deploying to OpenShift. Go to the Command Palette and choose "Build and Run Locally":
+Typically you will want to test your code first, before deploying to OpenShift. Go to the Command Palette and choose "Build and Run Locally". It will take a minute or two to download dependencies, then it should be ready when you start seeing log file messages like:
+
+```
+2019-03-19 11:32:07,092 INFO  [org.inf.hp.ser.HogwartsMagicCreator] (DefaultQuartzScheduler_Worker-2) ... magic is happening ...
+2019-03-19 11:32:07,097 INFO  [org.inf.hp.ser.HogwartsMagicCreator] (DefaultQuartzScheduler_Worker-2) Vernon Dursley can't perform magic
+...
+```
 
 !IMAGE
 
@@ -300,12 +309,11 @@ Open the file `src/main/java/org/infinispan/hp/HogwartsMagicWebSocket.java` and 
 session.getBasicRemote().sendText(value.getCaster() + " CAST " + value.getSpell());
 ```
 
-Use the _File_ > _Save_ to save the file, and you'll immediately notice that the value changes in your browser:
+CodeReady Workspaces automatically saves "dirty" files every second, so reload your browser and you'll immediately notice that the value changes in your browser:
 
 !IMAGE
 
 Pretty cool, eh? You can repeat the above process as much as you want. When you're finished, go back to the CodeReady console for your running project, and close it with the 'X' button in the tab title. This also terminates the locally running app.
-
 
 Now that we've confirmed our app works well "locally", let's deploy it using the `odo` CLI. OpenShift Do (`odo`) is a CLI tool for developers who are writing, building, and deploying applications on OpenShift. With odo, developers get an opinionated CLI tool that supports fast, iterative development which abstracts away Kubernetes and OpenShift concepts, thus allowing them to focus on what's most important to them: code.
 
@@ -346,7 +354,7 @@ odo create java magic
 Quarkus projects have create two different JAR files, but we only want one of them to appear in our final project at runtime, so issue the following command to override which build artifacts are used:
 
 ```sh
-oc env dc/magic ARTIFACT_COPY_ARGS='-r *runner.jar lib *.csv'
+oc set env dc/magic-potter-app ARTIFACT_COPY_ARGS='-r *runner.jar lib *.csv'
 ```
 
 Finally, push the code to the container:
@@ -355,7 +363,7 @@ Finally, push the code to the container:
 odo push
 ```
 
-And create a URL to it (actually creates an OpenShift Route):
+This will take a few minutes to build and start the app on OpenShift. During the build, odo will cache the Maven artifacts so future builds and deploys are lightning fast. When that's done, create a URL to it (actually creates an OpenShift Route):
 
 ```sh
 odo url create
