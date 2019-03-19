@@ -290,13 +290,13 @@ Keep this browser window visible for the next section!
 Try out Live Reload
 ===================
 One of the features of the Quarkus project is the ability to Live Reload very quickly, even for Java projects. 
-Open the and look at line 58, and change the log file message from "execute" to "cast":
+Open the file `src/main/java/org/infinispan/hp/HogwartsMagicWebSocket.java` and look at line 58, and change the log file message from "execute" to "cast":
 
 ```java
 session.getBasicRemote().sendText(value.getCaster() + " CAST " + value.getSpell());
 ```
 
-Use the _File_ > _Save_ to save the file, and you'll immediately notice that the value changes in your brower:
+Use the _File_ > _Save_ to save the file, and you'll immediately notice that the value changes in your browser:
 
 !IMAGE
 
