@@ -366,7 +366,7 @@ odo push
 This will take a few minutes to build and start the app on OpenShift. During the build, odo will cache the Maven artifacts so future builds and deploys are lightning fast. When that's done, create a URL to it (actually creates an OpenShift Route):
 
 ```sh
-odo url create
+odo url create --port=8080
 ```
 
 This last command will output the URL to our newly created application. Open that URL in your browser, and you should get the same UI from before, only this time running within OpenShift as a true containerized application, developed using CodeReady Workspaces, deployed with `odo`, and using Red Hat Middleware application services to execute its business logic, all within the OpenShift 4 Container Platform. Congratulations!
