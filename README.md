@@ -128,7 +128,7 @@ Expand the `stack` API, and find the `POST  /stack` API. In the `body` field, pa
       "default": {
         "recipe": {
           "type": "dockerimage",
-          "content": "jamesfalkner/custom-stack:latest"
+          "content": "schtool/che-vertx-odo:latest"
         },
         "machines": {
           "dev-machine": {
