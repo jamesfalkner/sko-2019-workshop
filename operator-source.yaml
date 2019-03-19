@@ -1,7 +1,7 @@
 apiVersion: marketplace.redhat.com/v1alpha1
 kind: OperatorSource
 metadata:
-  name: sko
+  name: sko-operators
   namespace: openshift-marketplace
 spec:
   type: appregistry
