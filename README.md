@@ -50,13 +50,13 @@ Install Red Hat Data Grid
 ==========================
 In our new project we will first deploy Red Hat Data Grid, a high performance, distributed data grid which our sample application will use for its reactive capabilities. Navigate to _Catalog_ > _Operator Hub_ in the OpenShift Console.
 
-Search for `grid` or browse to find **Red Hat Data Grid**, and click on it, and then click **Install**. We will install this Operator into our new namespace, so be sure to choose "_A specific Namespace on the cluster_" and choose your new project `skodemo` to install the operator into the namespace:
+Search for `grid` or browse to find **Red Hat Data Grid**, and click on it, and then click **Install**. We will install this Operator into our new namespace, so be sure to choose "_A specific Namespace on the cluster_" and choose your new project `skodemo`, and click **Subscribe** to install the operator into the namespace:
 
 !IMAGE
 
 Note that this is not the same as installing Data Grid itself - that's the next step!
 
-Navigate to _Catalog_ > _Installed Operators_, and click on the Red Hat Data Grid operator. This operator exposes one API, namely Red Hat Data Grid itself, so click __Create__ on the Red Hat Data Grid tile. Don't change anything in the YAML file defaults, and click __Create__. This will cause Red Hat Data Grid to be deployed to your project's namespace and can now be used by projects.
+Navigate to _Catalog_ > _Installed Operators_, and click on the Red Hat Data Grid operator (if you do not see it yet, it may take a few minutes to appear). This operator exposes one API, namely Red Hat Data Grid itself, so click __Create New__ on the Red Hat Data Grid tile. Don't change anything in the YAML file defaults, and click __Create__. This will cause Red Hat Data Grid to be deployed to your project's namespace and can now be used by projects. If you navigate to _Workloads_ > _Pods_ you'll be able to see the Data Grid pods spinning up.
 
 
 Install CodeReady
@@ -65,17 +65,17 @@ CodeReady is Red Hat's browser-based intelligent developer IDE. We'll use the Co
 
 Once again, navigate to _Catalog_ > _Operator Hub_.
 
-Search for `codeready` or browse the catalog to find the _CodeReady Operator_, and click on it, and then click **Install**. We will install this Operator into our new namespace, just like Data Grid, so be sure to choose "A specific Namespace on the cluster" and choose `skodemo` to install the operator into the namespace.
+Search for `codeready` or browse the catalog to find the _CodeReady Operator_, and click on it, and then click **Install**. We will install this Operator into our new namespace, just like Data Grid, so be sure to choose "A specific Namespace on the cluster" and choose `skodemo`, and click **Subscribe** to install the operator into the namespace.
 
 !IMAGE
 
-For this demo, we'll give the Operator administrator privileges so that it can create the needed resources. Run this:
+For this demo, we'll give the Operator administrator privileges so that it can create the needed resources. Run this command before proceeding:
 
 ```sh
 oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:skodemo:codeready-operator -n skodemo
 ```
 
-With the Operator installed, navigate to _Catalog_ > _Installed Operators_, and click on the CodeReady operator. This operator exposes one API, namely CodeReady itself, so click __Create__ on the CodeReady tile. Don't change anything in the YAML file defaults, and click __Create__. This will cause CodeReady to be deployed to the `codeready` namespace, and usable from your project's namespace.
+With the Operator installed, navigate to _Catalog_ > _Installed Operators_, and click on the CodeReady operator. This operator exposes one API, namely CodeReady itself, so click __Create New__ on the CodeReady tile. Don't change anything in the YAML file defaults, and click __Create__. This will cause CodeReady to be deployed to the `codeready` namespace, and usable from your project's namespace.
 
 This will take several minutes to complete, and will install CodeReady into the `codeready` namespace. Once you see all 3 pods in the `Running` state using this command, then you can proceed:
 
@@ -187,7 +187,7 @@ Expand the `stack` API, and find the `POST  /stack` API. In the `body` field, pa
         }
       },
       {
-        "commandLine": "mvn clean compile quarkus:dev -f ${current.project.path} -s ${current.project.path}/.settings.xml",
+        "commandLine": "mvn clean compile quarkus:dev -f ${current.project.path}",
         "name": "Build and Run Locally",
         "type": "custom",
         "attributes": {
@@ -275,7 +275,11 @@ This will cause our application to listen on TCP port `8080`, across all interfa
 
 Test locally
 ============
-Typically you will want to test your code first, before deploying to OpenShift. Go to the Command Palette and choose "Build and Run Locally". This will run the `mvn quarkus:dev` command and show its output on the console, which will run the sample application in development mode, with "Live Reload" enabled.
+Typically you will want to test your code first, before deploying to OpenShift. Go to the Command Palette and choose "Build and Run Locally":
+
+!IMAGE
+
+This will run the `mvn quarkus:dev` command and show its output on the console, which will run the sample application in development mode, with "Live Reload" enabled.
 
 You'll also notice a Preview URL at the top of the console:
 
